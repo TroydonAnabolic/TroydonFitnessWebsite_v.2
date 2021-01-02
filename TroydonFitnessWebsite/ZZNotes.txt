@@ -59,3 +59,6 @@ Things to Note for bug fix:
 
 User profile details
 FirstName, LastName, DateOfBirth, AddressLine1, AddressLine2, City, State, Zip, PhoneNumber, Bodyfat, Gender, Height, Weight, ActivityType, isAdmin
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Troubleshooting:
+Database connection error solution: check AWS Security Group rules are updated whenever my desktop's dynamic IP address updates.

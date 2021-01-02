@@ -142,6 +142,12 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
                 case "suppID_desc":
                     supplementIQ = supplementIQ.OrderByDescending(s => s.SupplementID);
                     break;
+                case "SuppName":
+                    supplementIQ = supplementIQ.OrderBy(s => s.SupplementName);
+                    break;
+                case "suppName_desc":
+                    supplementIQ = supplementIQ.OrderByDescending(s => s.SupplementName);
+                    break;
                 case "Price":
                     supplementIQ = supplementIQ.OrderBy(s => s.SupplementPrice);
                     break;
