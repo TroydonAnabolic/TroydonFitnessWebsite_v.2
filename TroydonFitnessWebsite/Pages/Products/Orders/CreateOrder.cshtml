@@ -22,16 +22,15 @@
                     <thead>
                         <tr>
                             @* Display cart items to display depending on the type using the below *@
-                            @{ if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
-                                {
+                            @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
+                             {
                                     <th>
                                         @Html.DisplayNameFor(model => model.CartItemsToOrder[0].Product)
                                     </th>
                                     <th>
                                         @Html.DisplayNameFor(model => model.CartItemsToOrder[0].PurchaserID)
                                     </th>
-                                }
-                            }
+                             }
                             <th>
                                 @Html.DisplayNameFor(model => model.CartItemsToOrder[0].Product.Title)
                             </th>

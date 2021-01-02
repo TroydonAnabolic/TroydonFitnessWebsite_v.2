@@ -5,60 +5,61 @@
 
 @model TroydonFitnessWebsite.Pages.Products.Supplements.IndexModel
 
-@{
-    Layout = "~/Pages/Shared/_ProductsLayout.cshtml";
-
-}
+@{ Layout = "~/Pages/Shared/_ProductsLayout.cshtml"; }
 
 
 @* Create new training routine order here *@
 
 @if (SignInManager.IsSignedIn(User))
 {
-    <h4>
-        <input type="submit" class="order-button" value="Place Order" />
-    </h4>
-}
+<h4>
+    <input type="submit" class="order-button" value="Place Order" />
+</h4> }
 else
 {
-    <form method="post">
+<form method="post">
 
-        <h4>
-            <input type="submit" class="order-button not-auth" value="Place Order" />
-        </h4>
-    </form>
-}
+    <h4>
+        <input type="submit" class="order-button not-auth" value="Place Order" />
+    </h4>
+</form>}
 
 <hr />
 
 <div class="row create-order hidden">
     @if (SignInManager.IsSignedIn(User))
     {
-            <div class="col-md-4">
-                <form method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="form-group">
-                        <label asp-for="CartVM.Supplement.Product.Title" class="control-label"></label>
-                        <select asp-for="CartVM.SupplementID" class="form-control"
-                                asp-items="@Model.SupplementNameSL">
-                            <option value="">-- Select Supplement--</option>
-                        </select>
-                        <span asp-validation-for="CartVM.TrainingRoutineID" class="text-danger" />
-                    </div>
-                    @* TODO: Currently only the back end handles inspect element to redirect, will later use JavaScript to make a alert box also tell user max quantity *@
-                    <div class="form-group">
-                        <label asp-for="CartVM.Quantity" class="control-label"></label>
-                        <input asp-for="CartVM.Quantity" class="form-control" value="1" readonly />
-                        <span asp-validation-for="CartVM.Quantity" class="text-danger"></span>
-                    </div>
+        <div class="col-md-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="CartVM.Supplement.Product.Title" class="control-label"></label>
+                    <select asp-for="CartVM.SupplementID" class="form-control"
+                            asp-items="@Model.SupplementNameSL">
+                        <option value="">-- Select Supplement--</option>
+                    </select>
+                    <span asp-validation-for="CartVM.TrainingRoutineID" class="text-danger" />
+                </div>
+                @* TODO: Currently only the back end handles inspect element to redirect, will later use JavaScript to make a alert box also tell user max quantity *@
+                <div class="form-group">
+                    <label asp-for="CartVM.Quantity" class="control-label"></label>
+                    <input asp-for="CartVM.Quantity" class="form-control" value="1" readonly />
+                    <span asp-validation-for="CartVM.Quantity" class="text-danger"></span>
+                </div>
 
-                    <div class="form-group">
-                        <input type="submit" value="Add To Cart" class="btn btn-primary" />
-                    </div>
-                </form>
-                <input type="submit" value="Cancel" class="btn btn-secondary cancel-create" />
+                @*<div class="form-group">
+                    <label asp-for="SupplementVM.SupplementPrice" class="control-label"></label>
+                    <input asp-for="@Model..SupplementPrice" class="form-control" />
+                    <span asp-validation-for="SupplementVM.SupplementPrice" class="text-danger"></span>
+                </div>*@
 
-            </div>
+                <div class="form-group">
+                    <input type="submit" value="Add To Cart" class="btn btn-primary" />
+                </div>
+            </form>
+            <input type="submit" value="Cancel" class="btn btn-secondary cancel-create" />
+
+        </div>
     }
 </div>
 
@@ -83,22 +84,25 @@ else
 <table class="table">
     <thead>
         <tr>
-            <th>
-                <a asp-page="./Index" asp-route-sortOrder="@Model.IdSort"
-                   asp-route-currentFilter="@Model.CurrentFilter">
-                    @Html.DisplayNameFor(model => model.Supplements[0].Product.ProductID)
-                </a>
-            </th>
-            <th>
-                <a asp-page="./Index" asp-route-sortOrder="@Model.suppIdSort"
-                   asp-route-currentFilter="@Model.CurrentFilter">
-                    @Html.DisplayNameFor(model => model.Supplements[0].SupplementID)
-                </a>
-            </th>
+            @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
+            {
+        <th>
+            <a asp-page="./Index" asp-route-sortOrder="@Model.IdSort"
+               asp-route-currentFilter="@Model.CurrentFilter">
+                @Html.DisplayNameFor(model => model.Supplements[0].Product.ProductID)
+            </a>
+        </th>
+                        <th>
+                            <a asp-page="./Index" asp-route-sortOrder="@Model.SuppIdSort"
+                               asp-route-currentFilter="@Model.CurrentFilter">
+                                @Html.DisplayNameFor(model => model.Supplements[0].SupplementID)
+                            </a>
+                        </th>
+}
             <th>
                 <a asp-page="./Index" asp-route-sortOrder="@Model.SuppNameSort"
                    asp-route-currentFilter="@Model.CurrentFilter">
-                    @Html.DisplayNameFor(model => model.Supplements[0].Product.Title)
+                    @Html.DisplayNameFor(model => model.Supplements[0].SupplementName)
                 </a>
             </th>
             <th>
@@ -116,51 +120,79 @@ else
             <th>
                 @Html.DisplayNameFor(model => model.Supplements[0].Product.ShortDescription)
             </th>
+            @if (UserManager.GetUserAsync(User).Result.IsAdmin)
+            {<th></th>}
             <th></th>
-        </tr>
+
+                            </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Supplements)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Product.ProductID)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SupplementID)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SupplementName) <br /> <em> @Html.DisplayFor(modelItem => item.Product.Title) </em>
-                </td>
-                <td>
-                    <img style="width:7rem;height:7rem; object-fit:cover;" src="data:image/*;base64,@(Convert.ToBase64String(item.SupplementPicture))">
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SupplementPrice)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Product.HasStock)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Product.ShortDescription)
-                </td>
-                <td>
-                    <a asp-page="./Edit" asp-route-id="@item.SupplementID">Edit</a> |
-                    <a asp-page="./Details" asp-route-id="@item.SupplementID">Details</a> |
-                    <a asp-page="./Delete" asp-route-id="@item.SupplementID">Delete</a>
-                </td>
-            </tr>
-        }
+        @{ 
+            // dynamically setting the cart id, so we can dynamically update the id of the current item being displayed.
+            int cartItemNumber = 0;
+            string cartItemId = "currentCartItem" + cartItemNumber;
+
+            @foreach (var item in Model.Supplements)
+            {
+                <tr>
+                    @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Product.ProductID)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.SupplementID)
+                        </td>
+                    }
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SupplementName) <br /> <em> @Html.DisplayFor(modelItem => item.Product.Title) </em>
+                    </td>
+                    <td>
+                        <img style="width:7rem;height:7rem; object-fit:cover;" src="data:image/*;base64,@(Convert.ToBase64String(item.SupplementPicture))">
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SupplementPrice)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Product.HasStock)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Product.ShortDescription)
+                    </td>
+                    @* If the user is an admin, the edit controls are displayed *@
+                    @if (UserManager.GetUserAsync(User).Result.IsAdmin)
+                    {
+                        <td>
+                            <a asp-page="./Edit" asp-route-id="@item.SupplementID">Edit</a> |
+                            <a asp-page="./Details" asp-route-id="@item.SupplementID">Details</a> |
+                            @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
+                            {
+                                    <a asp-page="./Delete" asp-route-id="@item.SupplementID">Delete</a>
+                            }
+                        </td>
+                    }
+                    <td>
+                        <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-update="@cartItemId">
+                            <i class="fas fa-plus-circle">
+                                <input asp-for="CartVM.SupplementID"  />
+                                <input type="submit" />
+                            </i>
+                        </form>
+                        
+                        <div id="@cartItemId"></div>
+                    </td>
+                </tr>
+                cartItemNumber++;
+            }
+            }
     </tbody>
     <thead>
 
     </thead>
 </table>
 
-@{
-    var prevDisabled = !Model.Supplements.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.Supplements.HasNextPage ? "disabled" : "";
-}
+@{ var prevDisabled = !Model.Supplements.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Supplements.HasNextPage ? "disabled" : ""; }
 
 <a asp-page="./Index"
    asp-route-sortOrder="@Model.CurrentSort"

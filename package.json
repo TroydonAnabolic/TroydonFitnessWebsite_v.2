@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "jquery-ajax-unobtrusive": "^3.2.6"
+  }
+}

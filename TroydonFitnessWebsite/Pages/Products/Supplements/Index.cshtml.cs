@@ -122,7 +122,8 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
             // returns to the list of current orders
             //return RedirectToPage(); <---return to add more if needed
             // return RedirectToPage("./Index"); previous, if go back two directories and to view orders dont work
-            return RedirectToPage("/Products/Orders/ManageCart/ViewCart");
+            //  return RedirectToPage("/Products/Orders/ManageCart/ViewCart"); TODO: Added 2 Jan 2021 -------------------------< update another link to redirect to the cart or use cart icon
+            return Page(); // right now we just return page each time we submit cart item
         }
 
         // Custom methods for determining what will be sorted
