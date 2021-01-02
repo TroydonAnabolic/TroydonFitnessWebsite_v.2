@@ -8,7 +8,7 @@
 @{ Layout = "~/Pages/Shared/_ProductsLayout.cshtml"; }
 
 
-@* Create new training routine order here *@
+@* Create new training routine order here 
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -39,21 +39,21 @@ else
                         <option value="">-- Select Supplement--</option>
                     </select>
                     <span asp-validation-for="CartVM.TrainingRoutineID" class="text-danger" />
-                </div>
-                @* TODO: Currently only the back end handles inspect element to redirect, will later use JavaScript to make a alert box also tell user max quantity *@
-                <div class="form-group">
+                </div>-->
+               TODO: Currently only the back end handles inspect element to redirect, will later use JavaScript to make a alert box also tell user max quantity 
+                <!--<div class="form-group">
                     <label asp-for="CartVM.Quantity" class="control-label"></label>
                     <input asp-for="CartVM.Quantity" class="form-control" value="1" readonly />
                     <span asp-validation-for="CartVM.Quantity" class="text-danger"></span>
-                </div>
+                </div>-->
 
-                @*<div class="form-group">
+               <div class="form-group">
                     <label asp-for="SupplementVM.SupplementPrice" class="control-label"></label>
                     <input asp-for="@Model..SupplementPrice" class="form-control" />
                     <span asp-validation-for="SupplementVM.SupplementPrice" class="text-danger"></span>
-                </div>*@
+                </div>
 
-                <div class="form-group">
+                <!--<div class="form-group">
                     <input type="submit" value="Add To Cart" class="btn btn-primary" />
                 </div>
             </form>
@@ -61,7 +61,7 @@ else
 
         </div>
     }
-</div>
+</div>-->*@
 
 
 @* Begin Viewing Training Routine *@
@@ -173,13 +173,16 @@ else
                     }
                     <td>
                         <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-update="@cartItemId">
-                            <i class="fas fa-plus-circle">
-                                <input asp-for="CartVM.SupplementID"  />
+                            <i class="fas fa-plus-circle" onClick="document.forms[4].submit();">
+                                <input asp-for="CartVM.SupplementID"  
+                                        asp-items="@Model.SupplementNameSL"/>
+
                                 <input type="submit" />
                             </i>
                         </form>
-                        
-                        <div id="@cartItemId"></div>
+
+                        @Model.CurrentSupplementID = @item.SupplementID;
+                        <div id="@cartItemId">@Model.CurrentNumberOfThisInCart</div>
                     </td>
                 </tr>
                 cartItemNumber++;

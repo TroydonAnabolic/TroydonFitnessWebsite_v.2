@@ -31,6 +31,10 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
 
         public PaginatedList<Supplement> Supplements { get; set; }
 
+        [BindProperty]
+        public int CurrentNumberOfThisInCart { get; set; }
+        [BindProperty]
+        public int CurrentSupplementID { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string sortOrder,
     string currentFilter, string searchString, int? pageIndex)
@@ -75,6 +79,9 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
                .Include(tr => tr.Product)
                //.AsNoTracking()
                , pageIndex ?? 1, pageSize);
+
+            // assign the current number of each particular ID to the number of those in the cart
+            CurrentNumberOfThisInCart = await _context.CartItems.Where(cartItem => cartItem.SupplementID == CurrentSupplementID).CountAsync();
 
             return Page();
         }
