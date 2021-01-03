@@ -30,11 +30,9 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
         }
 
         public PaginatedList<Supplement> Supplements { get; set; }
+        public SupplementVM SupplementVM { get; set; }
 
-        [BindProperty]
-        public int CurrentNumberOfThisInCart { get; set; }
-        [BindProperty]
-        public int CurrentSupplementID { get; set; }
+        public List<int?> SupplementIdList { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string sortOrder,
     string currentFilter, string searchString, int? pageIndex)
@@ -80,8 +78,16 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
                //.AsNoTracking()
                , pageIndex ?? 1, pageSize);
 
-            // assign the current number of each particular ID to the number of those in the cart
-            CurrentNumberOfThisInCart = await _context.CartItems.Where(cartItem => cartItem.SupplementID == CurrentSupplementID).CountAsync();
+            // Create a list of all the supplement ID's from the cart
+            SupplementIdList =  _context.CartItems.AsEnumerable()
+                .Select(s => s.SupplementID)
+                .ToList();
+
+            // CurrentNumberOfThisInCart = get the number of this for each ID being checked
+            //for (int i = 0; i < totalNumberOfSupplementsInCart; i++)
+            //{
+
+            //}
 
             return Page();
         }
@@ -115,6 +121,7 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
             var entry = _context.Add(emptyCartItem);
             // assign a userID to the order, so we know which cart items to remove
             CartVM.PurchaserID = user.Id;
+            CartVM.SupplementID = CurrentSupplementID;
             // if the user edits the cart to have a value more than 1 then redirect to the same page
             if (CartVM.Quantity > 1) return RedirectToPage("./Index");
             entry.CurrentValues.SetValues(CartVM);

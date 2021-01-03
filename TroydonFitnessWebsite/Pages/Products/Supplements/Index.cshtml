@@ -127,13 +127,13 @@ else
                             </tr>
     </thead>
     <tbody>
-        @{ 
-            // dynamically setting the cart id, so we can dynamically update the id of the current item being displayed.
-            int cartItemNumber = 0;
-            string cartItemId = "currentCartItem" + cartItemNumber;
+        @{
+            int cartItemNumber = 0, formNumber = 4;
 
             @foreach (var item in Model.Supplements)
             {
+                // dynamically setting the cart id, so we can dynamically update the id of the current item being displayed.
+                string cartItemId = "currentCartItem" + cartItemNumber;
                 <tr>
                     @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
                     {
@@ -159,7 +159,7 @@ else
                     <td>
                         @Html.DisplayFor(modelItem => item.Product.ShortDescription)
                     </td>
-                    @* If the user is an admin, the edit controls are displayed *@
+                    @* If the user is an admin, the edit controls are displayed, only master admin can delete, and edit *@
                     @if (UserManager.GetUserAsync(User).Result.IsAdmin)
                     {
                         <td>
@@ -167,27 +167,40 @@ else
                             <a asp-page="./Details" asp-route-id="@item.SupplementID">Details</a> |
                             @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
                             {
-                                    <a asp-page="./Delete" asp-route-id="@item.SupplementID">Delete</a>
+                                <a asp-page="./Delete" asp-route-id="@item.SupplementID">Delete</a>
                             }
                         </td>
                     }
                     <td>
                         <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-update="@cartItemId">
-                            <i class="fas fa-plus-circle" onClick="document.forms[4].submit();">
-                                <input asp-for="CartVM.SupplementID"  
-                                        asp-items="@Model.SupplementNameSL"/>
+                            <i class="fas fa-plus-circle" onClick="document.forms[@formNumber].submit();">
+                                <input type="hidden" asp-for="CartVM.SupplementID"
+                                       asp-items="@Model.SupplementNameSL" />
 
-                                <input type="submit" />
                             </i>
                         </form>
+                        @* Make this current supplement ID
+                        @Model.CurrentSupplementID = @item.SupplementID; *@
+                    <div id="@cartItemId">
+                        @{ 
+                            var numberOfCurrentSupplementInCart = 0;
+                            for (int i = 0; i < Model.SupplementIdList.Count(); i++)
+                            {
+                                if (Model.SupplementIdList[i] == item.SupplementID)
+                                {
+                                    numberOfCurrentSupplementInCart++;
+                                }
+                            }
+                        }
 
-                        @Model.CurrentSupplementID = @item.SupplementID;
-                        <div id="@cartItemId">@Model.CurrentNumberOfThisInCart</div>
+                        @numberOfCurrentSupplementInCart
+                    </div>
                     </td>
                 </tr>
                 cartItemNumber++;
+                formNumber++;
             }
-            }
+        }
     </tbody>
     <thead>
 
