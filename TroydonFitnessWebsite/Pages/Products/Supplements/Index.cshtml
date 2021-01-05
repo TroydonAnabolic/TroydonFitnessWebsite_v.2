@@ -7,7 +7,6 @@
 
 @{ Layout = "~/Pages/Shared/_ProductsLayout.cshtml"; }
 
-
 @* Create new training routine order here 
 
 @if (SignInManager.IsSignedIn(User))
@@ -128,16 +127,18 @@ else
     </thead>
     <tbody>
         @{
-            int cartItemNumber = 0, formNumber = 4;
+            int cartItemNumber = 0, formNumber = 4, suppIdNumber = 0;
 
             @foreach (var item in Model.Supplements)
             {
                 // dynamically setting the cart id, so we can dynamically update the id of the current item being displayed.
                 string cartItemId = "currentCartItem" + cartItemNumber;
-                Model.CurrentSupplementID = item.SupplementID;
+                string formNumberId = "formId" + formNumber;
+                string currentSuppId = "suppId" + suppIdNumber;
                 <tr>
                     @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
                     {
+
                         <td>
                             @Html.DisplayFor(modelItem => item.Product.ProductID)
                         </td>
@@ -174,11 +175,17 @@ else
                     }
                     <td>
                         <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-update="@cartItemId">
-                            <i class="fas fa-plus-circle" onClick="document.forms[@formNumber].submit();">
-                                <input type="hidden" asp-for="CartVM.SupplementID"
-                                       asp-items="@Model.SupplementNameSL" />
+                            <div id="@currentSuppId" hidden>@item.SupplementID</div>
 
+                            <i class="fas fa-plus-circle" onClick="document.forms[@formNumber].submit();">
+                                    <input id="@formNumberId" type="hidden" asp-for="CartVM.SupplementID" value="@item.SupplementID" onClick="reply_click(this.id)"
+                                       asp-items="@Model.SupplementNameSL" />
+                                @*<input type="hidden" asp-for="CartVM.Price" value="@item.SupplementPrice" />*@
+                                @* TODO - see gym pass example and see if we can use the iterations id and data value to use javascript to post back the data instead with ajax
+                                    Before using javascript to do the whole post back trying just using javascript to set the data value by retrieiving the element id,
+                                    and set the elements value for the form  *@
                             </i>
+
                         </form>
                     <div id="@cartItemId">
                         @{ 
@@ -198,6 +205,7 @@ else
                 </tr>
                 cartItemNumber++;
                 formNumber++;
+                suppIdNumber++;
             }
         }
     </tbody>
@@ -223,3 +231,12 @@ else
    class="btn btn-primary @nextDisabled">
     Next
 </a>
+
+<script>
+    // get the value of item.SupplementID, then set the value of the form to be this
+    // this way we set the value for the current iteration, because CartVM seems to be using the last assigned value from the GET request
+    function reply_click(clicked_id) {
+       // clicked_id = document.getElementById();
+    }
+
+</script>
