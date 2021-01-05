@@ -33,6 +33,7 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
         public SupplementVM SupplementVM { get; set; }
 
         public List<int?> SupplementIdList { get; set; }
+        public List<int> QuantityInCart { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string sortOrder,
     string currentFilter, string searchString, int? pageIndex)
@@ -82,6 +83,11 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
             SupplementIdList =  _context.CartItems.AsEnumerable()
                 .Select(s => s.SupplementID)
                 .ToList();
+
+            QuantityInCart = _context.CartItems.AsEnumerable()
+               .Select(s => s.Quantity)
+               .ToList();
+
 
             // CurrentNumberOfThisInCart = get the number of this for each ID being checked
             //for (int i = 0; i < totalNumberOfSupplementsInCart; i++)

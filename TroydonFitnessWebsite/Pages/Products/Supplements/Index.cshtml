@@ -183,7 +183,9 @@ else
                                 @*<input type="hidden" asp-for="CartVM.Price" value="@item.SupplementPrice" />*@
                                 @* TODO - see gym pass example and see if we can use the iterations id and data value to use javascript to post back the data instead with ajax
                                     Before using javascript to do the whole post back trying just using javascript to set the data value by retrieiving the element id,
-                                    and set the elements value for the form  *@
+                                    and set the elements value for the form .
+                                    Also reconsider using the formnumber strategy as it seems it uses form[5] as in the footer form out of this loop instead first,
+                                    try using the javascript to determine this*@
                             </i>
 
                         </form>
@@ -192,9 +194,11 @@ else
                             var numberOfCurrentSupplementInCart = 0;
                             for (int i = 0; i < Model.SupplementIdList.Count(); i++)
                             {
+                                // when the supplement in the list id is the same this supp ID
                                 if (Model.SupplementIdList[i] == item.SupplementID)
                                 {
-                                    numberOfCurrentSupplementInCart++;
+                                    // then show the value of the quantity for that supplement ID
+                                    numberOfCurrentSupplementInCart = Model.QuantityInCart[i];
                                 }
                             }
                         }
