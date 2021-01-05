@@ -134,6 +134,7 @@ else
             {
                 // dynamically setting the cart id, so we can dynamically update the id of the current item being displayed.
                 string cartItemId = "currentCartItem" + cartItemNumber;
+                Model.CurrentSupplementID = item.SupplementID;
                 <tr>
                     @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
                     {
@@ -160,7 +161,7 @@ else
                         @Html.DisplayFor(modelItem => item.Product.ShortDescription)
                     </td>
                     @* If the user is an admin, the edit controls are displayed, only master admin can delete, and edit *@
-                    @if (UserManager.GetUserAsync(User).Result.IsAdmin)
+                    @if (UserManager.GetUserAsync(User).Result.IsAdmin || UserManager.GetUserAsync(User).Result.IsMasterAdmin)
                     {
                         <td>
                             <a asp-page="./Edit" asp-route-id="@item.SupplementID">Edit</a> |
@@ -179,8 +180,6 @@ else
 
                             </i>
                         </form>
-                        @* Make this current supplement ID
-                        @Model.CurrentSupplementID = @item.SupplementID; *@
                     <div id="@cartItemId">
                         @{ 
                             var numberOfCurrentSupplementInCart = 0;

@@ -33,6 +33,7 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
         public SupplementVM SupplementVM { get; set; }
 
         public List<int?> SupplementIdList { get; set; }
+        public int CurrentSupplementID { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string sortOrder,
     string currentFilter, string searchString, int? pageIndex)
@@ -113,19 +114,66 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
                 return RedirectToPage("/Index"); // TODO: Change to login redirect
             }
 
-            IList<Cart> cartItem = await _context.CartItems.ToListAsync();
+            // Create a list of all the supplement ID's from the cart
+            var supplementIdList = _context.CartItems.AsEnumerable()
+                .Select(s => s.SupplementID)
+                .ToList();
 
+            // add all the duplicate IDs in the cart
+            List<int?> listOfDuplicateId = new List<int?>();
+
+
+            // add all the items that are duplicates into duplicate list
+            for (int i = 0; i < supplementIdList.Count(); i++)
+            {
+                for (int j = i + 1; j < supplementIdList.Count(); j++)
+                {
+                    // if any other element exist more than once and not already added to list of duplicates
+                    if (supplementIdList[i] == supplementIdList[j] && !listOfDuplicateId.Contains(supplementIdList[i]))
+                    {
+                        listOfDuplicateId.Add(supplementIdList[i]);
+                    }
+                }
+            }
+
+            // if the current supplement ID does not exist in the duplicate list
+            if (listOfDuplicateId.Contains(CurrentSupplementID)) listOfDuplicateId.Add(CurrentSupplementID);
 
             var emptyCartItem = new Cart();
 
-            var entry = _context.Add(emptyCartItem);
-            // assign a userID to the order, so we know which cart items to remove
-            CartVM.PurchaserID = user.Id;
-            CartVM.SupplementID = CurrentSupplementID;
-            // if the user edits the cart to have a value more than 1 then redirect to the same page
-            if (CartVM.Quantity > 1) return RedirectToPage("./Index");
-            entry.CurrentValues.SetValues(CartVM);
-            await _context.SaveChangesAsync();
+            // TODO: Check if the supplement ID of the item we are trying to add already exists, by checking it's count
+            if (!listOfDuplicateId.Contains(CurrentSupplementID))
+            {
+                var entry = _context.Add(emptyCartItem);
+                // assign a userID to the order, so we know which cart items to remove
+                CartVM.PurchaserID = user.Id;
+                CartVM.SupplementID = CurrentSupplementID;
+                CartVM.Quantity = 1;
+                // if the user edits the cart to have more than 1 training routine or diet routine - TODO fix if logic so it only applies to routine and diet ===================================
+                if ( CartVM.Quantity > 1) return RedirectToPage("./Index"); 
+                entry.CurrentValues.SetValues(CartVM);
+                await _context.SaveChangesAsync();
+            }
+            // if the current supplement ID occurs one or more times in the duplicate list
+            else if (listOfDuplicateId.Contains(CurrentSupplementID))
+            {
+                // find the cart ID that has the current supplement Id
+                var cartItemsToUpdate =  _context.CartItems.Where(c => c.SupplementID == CurrentSupplementID).FirstOrDefault().CartID;
+
+                var supplementInCartToUpdate = await _context.CartItems.FindAsync(cartItemsToUpdate);
+
+                if (await TryUpdateModelAsync<Cart>(
+              supplementInCartToUpdate,
+              "cart",
+              p => p.Quantity))
+                {
+                    // increment the quantity by 1
+                    supplementInCartToUpdate.Quantity += 1;
+                    await _context.SaveChangesAsync();
+                    return Page();
+                }
+            }
+          
 
             var cartItemList = await _context.CartItems
                 .Include(t => t.Supplement)

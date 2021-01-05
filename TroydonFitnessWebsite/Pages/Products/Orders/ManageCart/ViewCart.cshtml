@@ -52,21 +52,58 @@
                     </th>
                 }
             }
-
-            <th>
+            @* Product Name *@
+        <th>
+            @if (Model.CartItems[0].TrainingRoutine != null)
+            {
                 <a asp-page="./ViewCart" asp-route-sortOrder="@Model.TitleSort"
                    asp-route-currentFilter="@Model.CurrentFilter">
                     @Html.DisplayNameFor(model => model.CartItems[0].Product.Title)
                 </a>
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CartItems[0].TrainingRoutine.PersonalTrainingSession)
-            </th>
-            <th>
-                <a asp-page="./ViewCart" asp-route-sortOrder="@Model.PriceSort"
+            }
+            else if (Model.CartItems[0].Diet != null)
+            {
+                <a asp-page="./ViewCart" asp-route-sortOrder="@Model.TitleSort"
                    asp-route-currentFilter="@Model.CurrentFilter">
-                    @Html.DisplayNameFor(model => model.CartItems[0].TrainingRoutine.PersonalTrainingSession.Product.Price)
+                    @Html.DisplayNameFor(model => model.CartItems[0].Product.Title)
                 </a>
+            }
+            else if (Model.CartItems[0].Supplement != null)
+            {
+                <a asp-page="./ViewCart" asp-route-sortOrder="@Model.SuppNameSort"
+                   asp-route-currentFilter="@Model.CurrentFilter">
+                    @Html.DisplayNameFor(model => model.CartItems[0].Supplement.SupplementName)
+                </a>
+            }
+
+        </th>
+            <th>
+               @*Picture  @Html.DisplayNameFor(model => model.CartItems[0].TrainingRoutine.PersonalTrainingSession)*@
+            </th>
+            @* Price *@
+            <th>
+                @if (Model.CartItems[0].TrainingRoutine != null)
+                {
+                    <a asp-page="./ViewCart" asp-route-sortOrder="@Model.PriceSort"
+                       asp-route-currentFilter="@Model.CurrentFilter">
+                        @Html.DisplayNameFor(model => model.CartItems[0].TrainingRoutine.PersonalTrainingSession.Product.Price)
+                    </a>
+                }
+                else if (Model.CartItems[0].Diet != null)
+                {
+                    <a asp-page="./ViewCart" asp-route-sortOrder="@Model.PriceSort"
+                       asp-route-currentFilter="@Model.CurrentFilter">
+                        @Html.DisplayNameFor(model => model.CartItems[0].TrainingRoutine.PersonalTrainingSession.Product.Price)
+                    </a>
+                }
+                else if (Model.CartItems[0].Supplement != null)
+                {
+                    <a asp-page="./ViewCart" asp-route-sortOrder="@Model.PriceSort"
+                       asp-route-currentFilter="@Model.CurrentFilter">
+                        @Html.DisplayNameFor(model => model.CartItems[0].Supplement.SupplementPrice)
+                    </a>
+                }
+
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CartItems[0].Quantity)
@@ -85,11 +122,23 @@
                         </td>
                         <td>
                             @* Determine which ID to display based on the type of order *@
-                            @if (Model.CartItems[0].TrainingRoutine != null)
+                            @if (item.TrainingRoutine!= null)
                             {
                                 @Html.DisplayNameFor(model => model.CartItems[0].TrainingRoutine)
                                 <hr />
-                                @Html.DisplayFor(modelItem => item.TrainingRoutineID)
+                                <div>ID: @Html.DisplayFor(modelItem => item.TrainingRoutineID) </div> 
+                            }
+                            else if (item.Diet != null)
+                            {
+                                @Html.DisplayNameFor(model => model.CartItems[0].Diet)
+                                <hr />
+                                <div>ID: @Html.DisplayFor(modelItem => item.DietID)  </div>
+                            }
+                            else if (item.Supplement != null)
+                            {
+                                 @Html.DisplayNameFor(model => model.CartItems[0].Supplement)
+                                <hr />
+                                <div>ID: @Html.DisplayFor(modelItem => item.SupplementID)  </div>
                             }
                         </td>
                         <td>
@@ -102,7 +151,7 @@
                     @* Display data access paths depending on the type of oder, e.g if training routine is not null, then display it's data access route tree *@
                     @if (Model.CartItems[0].TrainingRoutine != null)
                     {
-                        @Html.DisplayFor(modelItem => item.TrainingRoutine.PersonalTrainingSession.Product.Title)
+                        @Html.DisplayFor(modelItem => item.TrainingRoutine.PersonalTrainingSession.Product.Title) // TODO: change this to TrainingRoutine name maybe if logic shd be like supp
                     }
                     @if (Model.CartItems[0].Diet != null)
                     {
@@ -110,7 +159,7 @@
                     }
                     @if (Model.CartItems[0].Supplement != null)
                     {
-                        @Html.DisplayFor(modelItem => item.Supplement.Product.Title)
+                        @Html.DisplayFor(modelItem => item.Supplement.SupplementName)
                     }
                 </td>
                 <td>
@@ -119,15 +168,13 @@
                     {
                         <img style="width:7rem;height:7rem; object-fit:cover;" src="data:image/*;base64,@(Convert.ToBase64String(item.TrainingRoutine.PersonalTrainingSession.PtProductPicture))">
                     }
-                    @if (Model.CartItems[0].Diet != null)
+                    else if (Model.CartItems[0].Diet != null)
                     {
                         <img style="width:7rem;height:7rem; object-fit:cover;" src="data:image/*;base64,@(Convert.ToBase64String(item.Diet.PersonalTrainingSession.PtProductPicture))">
                     }
-                    @if (Model.CartItems[0].Supplement != null)
+                    else if (Model.CartItems[0].Supplement != null)
                     {
-                        // TODO: add supplement image
-                        @*<img style="width:7rem;height:7rem; object-fit:cover;" src="data:image/*;base64,@(Convert.ToBase64String(item.Supplement.SupplementImage))">*@
-
+                        <img style="width:7rem;height:7rem; object-fit:cover;" src="data:image/*;base64,@(Convert.ToBase64String(item.Supplement.SupplementPicture))">
                     }
                 </td>
                 <td>
