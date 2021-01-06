@@ -7,61 +7,6 @@
 
 @{ Layout = "~/Pages/Shared/_ProductsLayout.cshtml"; }
 
-@* Create new training routine order here 
-
-@if (SignInManager.IsSignedIn(User))
-{
-<h4>
-    <input type="submit" class="order-button" value="Place Order" />
-</h4> }
-else
-{
-<form method="post">
-
-    <h4>
-        <input type="submit" class="order-button not-auth" value="Place Order" />
-    </h4>
-</form>}
-
-<hr />
-
-<div class="row create-order hidden">
-    @if (SignInManager.IsSignedIn(User))
-    {
-        <div class="col-md-4">
-            <form method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="CartVM.Supplement.Product.Title" class="control-label"></label>
-                    <select asp-for="CartVM.SupplementID" class="form-control"
-                            asp-items="@Model.SupplementNameSL">
-                        <option value="">-- Select Supplement--</option>
-                    </select>
-                    <span asp-validation-for="CartVM.TrainingRoutineID" class="text-danger" />
-                </div>-->
-               TODO: Currently only the back end handles inspect element to redirect, will later use JavaScript to make a alert box also tell user max quantity 
-                <!--<div class="form-group">
-                    <label asp-for="CartVM.Quantity" class="control-label"></label>
-                    <input asp-for="CartVM.Quantity" class="form-control" value="1" readonly />
-                    <span asp-validation-for="CartVM.Quantity" class="text-danger"></span>
-                </div>-->
-
-               <div class="form-group">
-                    <label asp-for="SupplementVM.SupplementPrice" class="control-label"></label>
-                    <input asp-for="@Model..SupplementPrice" class="form-control" />
-                    <span asp-validation-for="SupplementVM.SupplementPrice" class="text-danger"></span>
-                </div>
-
-                <!--<div class="form-group">
-                    <input type="submit" value="Add To Cart" class="btn btn-primary" />
-                </div>
-            </form>
-            <input type="submit" value="Cancel" class="btn btn-secondary cancel-create" />
-
-        </div>
-    }
-</div>-->*@
-
 
 @* Begin Viewing Training Routine *@
 <p>
@@ -85,19 +30,19 @@ else
         <tr>
             @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
             {
-        <th>
-            <a asp-page="./Index" asp-route-sortOrder="@Model.IdSort"
-               asp-route-currentFilter="@Model.CurrentFilter">
-                @Html.DisplayNameFor(model => model.Supplements[0].Product.ProductID)
-            </a>
-        </th>
-                        <th>
-                            <a asp-page="./Index" asp-route-sortOrder="@Model.SuppIdSort"
-                               asp-route-currentFilter="@Model.CurrentFilter">
-                                @Html.DisplayNameFor(model => model.Supplements[0].SupplementID)
-                            </a>
-                        </th>
-}
+                <th>
+                    <a asp-page="./Index" asp-route-sortOrder="@Model.IdSort"
+                       asp-route-currentFilter="@Model.CurrentFilter">
+                        @Html.DisplayNameFor(model => model.Supplements[0].Product.ProductID)
+                    </a>
+                </th>
+                <th>
+                    <a asp-page="./Index" asp-route-sortOrder="@Model.SuppIdSort"
+                       asp-route-currentFilter="@Model.CurrentFilter">
+                        @Html.DisplayNameFor(model => model.Supplements[0].SupplementID)
+                    </a>
+                </th>
+            }
             <th>
                 <a asp-page="./Index" asp-route-sortOrder="@Model.SuppNameSort"
                    asp-route-currentFilter="@Model.CurrentFilter">
@@ -120,21 +65,24 @@ else
                 @Html.DisplayNameFor(model => model.Supplements[0].Product.ShortDescription)
             </th>
             @if (UserManager.GetUserAsync(User).Result.IsAdmin)
-            {<th></th>}
+            {
+                <th></th>
+}
             <th></th>
 
-                            </tr>
+        </tr>
     </thead>
     <tbody>
         @{
-            int cartItemNumber = 0, formNumber = 4, suppIdNumber = 0;
+            int cartItemNumber = 4;
 
             @foreach (var item in Model.Supplements)
             {
                 // dynamically setting the cart id, so we can dynamically update the id of the current item being displayed.
-                string cartItemId = "currentCartItem" + cartItemNumber;
-                string formNumberId = "formId" + formNumber;
-                string currentSuppId = "suppId" + suppIdNumber;
+                string cartItemId = "cartItemId" + cartItemNumber;
+                string formNumberId = "formNumberId" + cartItemNumber;
+                string addToCartFormId = "addToCartFormId" + cartItemNumber;
+                string cartIconId = "cartIconId" + cartItemNumber;
                 <tr>
                     @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
                     {
@@ -174,11 +122,11 @@ else
                         </td>
                     }
                     <td>
-                        <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-update="@cartItemId">
-                            <div id="@currentSuppId" hidden>@item.SupplementID</div>
+                        <form id="@addToCartFormId" method="post" data-ajax="true" data-ajax-method="post" data-ajax-update="@cartItemId">
+                            <div  hidden>@item.SupplementID</div>
 
-                            <i class="fas fa-plus-circle" onClick="document.forms[@formNumber].submit();">
-                                    <input id="@formNumberId" type="hidden" asp-for="CartVM.SupplementID" value="@item.SupplementID" onClick="reply_click(this.id)"
+                            <i id="@cartIconId" class="fas fa-plus-circle" onClick="reply_click(this.id)" > @* onClick="document.forms[@formNumber].submit();"*@
+                                <input id="@formNumberId" type="hidden" asp-for="CartVM.SupplementID" value="@item.SupplementID" onClick="reply_click(this.id)"
                                        asp-items="@Model.SupplementNameSL" />
                                 @*<input type="hidden" asp-for="CartVM.Price" value="@item.SupplementPrice" />*@
                                 @* TODO - see gym pass example and see if we can use the iterations id and data value to use javascript to post back the data instead with ajax
@@ -189,27 +137,25 @@ else
                             </i>
 
                         </form>
-                    <div id="@cartItemId">
-                        @{ 
-                            var numberOfCurrentSupplementInCart = 0;
-                            for (int i = 0; i < Model.SupplementIdList.Count(); i++)
-                            {
-                                // when the supplement in the list id is the same this supp ID
-                                if (Model.SupplementIdList[i] == item.SupplementID)
+                        <div id="@cartItemId">
+                            @{
+                                var numberOfCurrentSupplementInCart = 0;
+                                for (int i = 0; i < Model.SupplementIdList.Count(); i++)
                                 {
-                                    // then show the value of the quantity for that supplement ID
-                                    numberOfCurrentSupplementInCart = Model.QuantityInCart[i];
+                                    // when the supplement in the list id is the same this supp ID
+                                    if (Model.SupplementIdList[i] == item.SupplementID)
+                                    {
+                                        // then show the value of the quantity for that supplement ID
+                                        numberOfCurrentSupplementInCart = Model.QuantityInCart[i];
+                                    }
                                 }
                             }
-                        }
 
-                        @numberOfCurrentSupplementInCart
-                    </div>
+                            @numberOfCurrentSupplementInCart
+                        </div>
                     </td>
                 </tr>
                 cartItemNumber++;
-                formNumber++;
-                suppIdNumber++;
             }
         }
     </tbody>
@@ -237,10 +183,12 @@ else
 </a>
 
 <script>
-    // get the value of item.SupplementID, then set the value of the form to be this
-    // this way we set the value for the current iteration, because CartVM seems to be using the last assigned value from the GET request
     function reply_click(clicked_id) {
-       // clicked_id = document.getElementById();
-    }
-
+        // replace all leading non-digits with nothing to find the form number to be submitted
+        var formNumber = clicked_id.replace(/^\D+/g, ''); 
+        var supplementId = document.getElementById("formNumberId" + formNumber).value;
+        console.log("SupplementID: " + supplementId);
+        console.log("the current form number is " + formNumber);
+        $("#addToCartFormId" + formNumber).submit();
+    };
 </script>
