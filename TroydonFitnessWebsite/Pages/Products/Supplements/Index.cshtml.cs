@@ -28,9 +28,7 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
             _context = context;
             _userManager = userManager;
         }
-
         public PaginatedList<Supplement> Supplements { get; set; }
-        public SupplementVM SupplementVM { get; set; }
 
         public List<int?> SupplementIdList { get; set; }
         public List<int> QuantityInCart { get; set; }
@@ -87,13 +85,6 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
             QuantityInCart = _context.CartItems.AsEnumerable()
                .Select(s => s.Quantity)
                .ToList();
-
-
-            // CurrentNumberOfThisInCart = get the number of this for each ID being checked
-            //for (int i = 0; i < totalNumberOfSupplementsInCart; i++)
-            //{
-
-            //}
 
             return Page();
         }
@@ -155,21 +146,20 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
                     // increment the quantity by 1
                     supplementInCartToUpdate.Quantity += 1;
                     await _context.SaveChangesAsync();
-                    return Page();
                 }
             }
 
-            var cartItemList = await _context.CartItems
-                .Include(t => t.Supplement)
-                .ToListAsync();
+            //var cartItemList = await _context.CartItems
+            //    .Include(t => t.Supplement)
+            //    .ToListAsync();
 
-            PopulateProductDropDownList(_context, emptyCartItem.SupplementID);
+            //PopulateProductDropDownList(_context, emptyCartItem.SupplementID);
 
             // returns to the list of current orders
-            //return RedirectToPage(); <---return to add more if needed
+             return RedirectToPage(); // <---return to add more if needed
             // return RedirectToPage("./Index"); previous, if go back two directories and to view orders dont work
-            //  return RedirectToPage("/Products/Orders/ManageCart/ViewCart"); TODO: Added 2 Jan 2021 -------------------------< update another link to redirect to the cart or use cart icon
-            return Page(); // right now we just return page each time we submit cart item
+            // return RedirectToPage("/Products/Orders/ManageCart/ViewCart");/* TODO: Added 2 Jan 2021 -------------------------< update another link to redirect to the cart or use cart icon*/
+            // return Page(); // right now we just return page each time we submit cart item
         }
 
         // Custom methods for determining what will be sorted
