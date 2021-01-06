@@ -128,15 +128,9 @@
                             <i id="@cartIconId" class="fas fa-plus-circle" onClick="reply_click(this.id)" > @* onClick="document.forms[@formNumber].submit();"*@
                                 <input id="@formNumberId" type="hidden" asp-for="CartVM.SupplementID" value="@item.SupplementID" onClick="reply_click(this.id)"
                                        asp-items="@Model.SupplementNameSL" />
-                                @*<input type="hidden" asp-for="CartVM.Price" value="@item.SupplementPrice" />*@
-                                @* TODO - see gym pass example and see if we can use the iterations id and data value to use javascript to post back the data instead with ajax
-                                    Before using javascript to do the whole post back trying just using javascript to set the data value by retrieiving the element id,
-                                    and set the elements value for the form .
-                                    Also reconsider using the formnumber strategy as it seems it uses form[5] as in the footer form out of this loop instead first,
-                                    try using the javascript to determine this*@
                             </i>
-
                         </form>
+
                         <div id="@cartItemId">
                             @{
                                 var numberOfCurrentSupplementInCart = 0;
