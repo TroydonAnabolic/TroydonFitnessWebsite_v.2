@@ -81,8 +81,11 @@
                 // dynamically setting the cart id, so we can dynamically update the id of the current item being displayed.
                 string cartItemId = "cartItemId" + cartItemNumber;
                 string formNumberId = "formNumberId" + cartItemNumber;
-                string addToCartFormId = "addToCartFormId" + cartItemNumber;
-                string cartIconId = "cartIconId" + cartItemNumber;
+                string addOrRemoveCartFormId = "addOrRemoveCartFormId" + cartItemNumber;
+                string addToCartIconId = "addToCartIconId" + cartItemNumber;
+                string addToCartInputId = "addToCartInputId" + cartItemNumber;
+                string removeFromCartIconId = "removeFromCartIconId" + cartItemNumber;
+                string removeFromCartInputId = "removeFromCartInputId" + cartItemNumber;
                 <tr>
                     @if (UserManager.GetUserAsync(User).Result.IsMasterAdmin)
                     {
@@ -122,13 +125,21 @@
                         </td>
                     }
                     <td>
-                        <form id="@addToCartFormId" method="post" data-ajax="true" data-ajax-method="post" data-ajax-update="@cartItemId">
-                            <div  hidden>@item.SupplementID</div>
+                        <form id="@addOrRemoveCartFormId" method="post" data-ajax="true" data-ajax-method="post" data-ajax-update="@cartItemId">
 
-                            <i id="@cartIconId" class="fas fa-plus-circle" onClick="reply_click(this.id)" > @* onClick="document.forms[@formNumber].submit();"*@
-                                <input id="@formNumberId" type="hidden" asp-for="CartVM.SupplementID" value="@item.SupplementID" onClick="reply_click(this.id)"
-                                       asp-items="@Model.SupplementNameSL" />
+
+                            <i id="@addToCartIconId" class="fas fa-plus-circle" onClick="reply_click(this.id)">
+                                <input id="@formNumberId" type="hidden" asp-for="CartVM.SupplementID" value="@item.SupplementID" onClick="reply_click(this.id)" />
+                                <input id="@addToCartInputId" type="hidden" asp-for="AddOrRemoveCartItem"  /> @* value="Add" *@
+                                @Html.Hidden("AddOrRemoveCartItem", Model.AddOrRemoveCartItem)
+
                             </i>
+
+                            <i id="@removeFromCartIconId" class="fas fa-minus-circle" onClick="reply_click(this.id)">
+                                <input id="@formNumberId" type="hidden" asp-for="CartVM.SupplementID" value="@item.SupplementID" onClick="reply_click(this.id)" />
+                                <input id="@removeFromCartInputId" type="hidden" asp-for="AddOrRemoveCartItem" /> @* value="Remove" *@
+                            </i>
+
                         </form>
 
                         <div id="@cartItemId">
@@ -183,6 +194,24 @@
         var supplementId = document.getElementById("formNumberId" + formNumber).value;
         console.log("SupplementID: " + supplementId);
         console.log("the current form number is " + formNumber);
-        $("#addToCartFormId" + formNumber).submit();
+
+        if (clicked_id.includes("addToCartIconId")) {
+            console.log("adding to cart");
+            console.log("id being removed from cart: " + "addToCartInputId" + formNumber);
+
+
+            document.getElementById("addToCartInputId" + formNumber).value = "Add";
+            $("#addOrRemoveCartFormId" + formNumber).submit();
+
+        }
+        else if (clicked_id.includes("removeFromCartIconId")) {
+            console.log("removing from cart");
+            console.log("id being removed from cart: " + "removeFromCartInputId" + formNumber);
+
+            document.getElementById("removeFromCartInputId" + formNumber).value = "Remove";
+            $("#addOrRemoveCartFormId" + formNumber).submit();
+
+        }
+
     };
 </script>

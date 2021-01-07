@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -32,6 +33,9 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
 
         public List<int?> SupplementIdList { get; set; }
         public List<int> QuantityInCart { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public string AddOrRemoveCartItem { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string sortOrder,
     string currentFilter, string searchString, int? pageIndex)
@@ -115,11 +119,11 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
                 .Select(s => s.SupplementID)
                 .ToList();
 
-            var emptyCartItem = new Cart();
 
             // TODO: Check if the supplement ID of the item we are trying to add already exists, by checking it's count
             if (!supplementIdList.Contains(CartVM.SupplementID))
             {
+                var emptyCartItem = new Cart();
                 var entry = _context.Add(emptyCartItem);
                 // assign a userID to the order, so we know which cart items to remove
                 CartVM.PurchaserID = user.Id;
@@ -135,16 +139,26 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
             {
                 // find the cart ID that has the current supplement Id
                 var cartItemsToUpdate =  _context.CartItems.Where(c => c.SupplementID == CartVM.SupplementID).FirstOrDefault().CartID;
-
                 var supplementInCartToUpdate = await _context.CartItems.FindAsync(cartItemsToUpdate);
+                var requestDetails = Request.Form.ToList();
 
                 if (await TryUpdateModelAsync<Cart>(
               supplementInCartToUpdate,
               "cart",
               p => p.Quantity))
                 {
-                    // increment the quantity by 1
-                    supplementInCartToUpdate.Quantity += 1;
+                    // based on which icon was clicked we add or remove from the cart
+                    foreach (var requestItem in requestDetails)
+                    {
+                        if (requestItem.Key == "AddOrRemoveCartItem")
+                        {
+                            if (requestItem.Value.ToString().Equals("Add"))
+                                supplementInCartToUpdate.Quantity += 1;
+                            else if (requestItem.Value.ToString().Equals("Remove"))
+                                supplementInCartToUpdate.Quantity -= 1;
+                        }
+                    }
+                   
                     await _context.SaveChangesAsync();
                 }
             }
