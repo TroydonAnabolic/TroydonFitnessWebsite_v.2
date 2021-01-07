@@ -15,6 +15,7 @@ namespace TroydonFitnessWebsite.Models.Products.ViewModels
         public string ProductName { get; set; }
         public decimal Price { get; set; }
         public int Quantity { get; set; }
+        public string AddOrRemoveCartItem { get; set; }
 
         // Navigation properties of all the potential orders details we can have
         public TrainingRoutine TrainingRoutine { get; set; }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using TroydonFitnessWebsite.Areas.Identity.Data;
 using TroydonFitnessWebsite.Data;
 using TroydonFitnessWebsite.Models;
@@ -34,14 +35,11 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
         public List<int?> SupplementIdList { get; set; }
         public List<int> QuantityInCart { get; set; }
 
-        [BindProperty(SupportsGet = true)]
-        public string AddOrRemoveCartItem { get; set; }
-
         public async Task<IActionResult> OnGetAsync(string sortOrder,
     string currentFilter, string searchString, int? pageIndex)
         {
             PopulateProductDropDownList(_context); // add option to populate and view data to which supplement we are adding
-
+            // Request.
             // assign hard prefix values
             AssigningSortOrderValues(sortOrder);
 
@@ -61,7 +59,7 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
 
             // The method uses LINQ to Entities to specify the column to sort by. The code initializes an IQueryable<Student> before the switch statement, and modifies it in the switch statement:
             IQueryable<Supplement> supplementIQ = from s in _context.Supplements
-                                                             select s;
+                                                  select s;
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -82,7 +80,7 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
                , pageIndex ?? 1, pageSize);
 
             // Create a list of all the supplement ID's from the cart
-            SupplementIdList =  _context.CartItems.AsEnumerable()
+            SupplementIdList = _context.CartItems.AsEnumerable()
                 .Select(s => s.SupplementID)
                 .ToList();
 
@@ -119,15 +117,42 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
                 .Select(s => s.SupplementID)
                 .ToList();
 
+            // gather the property values assigned value via javascript
+            int? supplementId = 0;
+            string addOrRemoveCartItem = string.Empty;
+            {
+                MemoryStream stream = new MemoryStream();
+                await Request.Body.CopyToAsync(stream);
+                stream.Position = 0;
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    string requestBody = reader.ReadToEnd();
+                    if (requestBody.Length > 0)
+                    {
+                        var obj = JsonConvert.DeserializeObject<CartVM>(requestBody);
+                        if (obj != null)
+                        {
+                            supplementId = obj.SupplementID;
+                            addOrRemoveCartItem = obj.AddOrRemoveCartItem;
+                        }
+                    }
+                }
+            }
+            List<string> lstString = new List<string>
+                {
+                    supplementId.ToString(),
+                    addOrRemoveCartItem,
+                };
+
 
             // TODO: Check if the supplement ID of the item we are trying to add already exists, by checking it's count
-            if (!supplementIdList.Contains(CartVM.SupplementID))
+            if (!supplementIdList.Contains(supplementId))
             {
                 var emptyCartItem = new Cart();
                 var entry = _context.Add(emptyCartItem);
                 // assign a userID to the order, so we know which cart items to remove
                 CartVM.PurchaserID = user.Id;
-               // CartVM.SupplementID = CurrentSupplementID;
+                // CartVM.SupplementID = CurrentSupplementID;
                 CartVM.Quantity = 1;
                 // if the user edits the cart to have more than 1 training routine or diet routine - TODO fix if logic so it only applies to routine and diet ===================================
                 //if ( CartVM.Quantity > 1) return RedirectToPage("./Index"); 
@@ -135,30 +160,23 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
                 await _context.SaveChangesAsync();
             }
             // if the current supplement ID occurs one or more times in the duplicate list
-            else if (supplementIdList.Contains(CartVM.SupplementID))
+            else if (supplementIdList.Contains(supplementId))
             {
                 // find the cart ID that has the current supplement Id
-                var cartItemsToUpdate =  _context.CartItems.Where(c => c.SupplementID == CartVM.SupplementID).FirstOrDefault().CartID;
+                var cartItemsToUpdate = _context.CartItems.Where(c => c.SupplementID == supplementId).FirstOrDefault().CartID;
                 var supplementInCartToUpdate = await _context.CartItems.FindAsync(cartItemsToUpdate);
-                var requestDetails = Request.Form.ToList();
+                // var requestDetails = Request.Form.ToList(); // removed because wwe can get req only once unless we move body position to 0
 
                 if (await TryUpdateModelAsync<Cart>(
               supplementInCartToUpdate,
               "cart",
               p => p.Quantity))
                 {
-                    // based on which icon was clicked we add or remove from the cart
-                    foreach (var requestItem in requestDetails)
-                    {
-                        if (requestItem.Key == "AddOrRemoveCartItem")
-                        {
-                            if (requestItem.Value.ToString().Equals("Add"))
-                                supplementInCartToUpdate.Quantity += 1;
-                            else if (requestItem.Value.ToString().Equals("Remove"))
-                                supplementInCartToUpdate.Quantity -= 1;
-                        }
-                    }
-                   
+                    if (addOrRemoveCartItem.Equals("Add"))
+                        supplementInCartToUpdate.Quantity += 1;
+                    else if (addOrRemoveCartItem.Equals("Remove"))
+                        supplementInCartToUpdate.Quantity -= 1;
+
                     await _context.SaveChangesAsync();
                 }
             }
@@ -170,9 +188,10 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
             //PopulateProductDropDownList(_context, emptyCartItem.SupplementID);
 
             // returns to the list of current orders
-             return RedirectToPage(); // <---return to add more if needed
+            // return RedirectToPage(); // <---return to add more if needed
             // return RedirectToPage("./Index"); previous, if go back two directories and to view orders dont work
             // return RedirectToPage("/Products/Orders/ManageCart/ViewCart");/* TODO: Added 2 Jan 2021 -------------------------< update another link to redirect to the cart or use cart icon*/
+            return RedirectToPage(lstString);
             // return Page(); // right now we just return page each time we submit cart item
         }
 

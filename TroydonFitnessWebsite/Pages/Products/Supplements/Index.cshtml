@@ -125,19 +125,18 @@
                         </td>
                     }
                     <td>
-                        <form id="@addOrRemoveCartFormId" method="post" data-ajax="true" data-ajax-method="post" data-ajax-update="@cartItemId">
+                        <form id="@addOrRemoveCartFormId">
+                            @* method="post" data-ajax="true" data-ajax-method="post" data-ajax-update="@cartItemId"*@
 
 
                             <i id="@addToCartIconId" class="fas fa-plus-circle" onClick="reply_click(this.id)">
                                 <input id="@formNumberId" type="hidden" asp-for="CartVM.SupplementID" value="@item.SupplementID" onClick="reply_click(this.id)" />
-                                <input id="@addToCartInputId" type="hidden" asp-for="AddOrRemoveCartItem"  /> @* value="Add" *@
-                                @Html.Hidden("AddOrRemoveCartItem", Model.AddOrRemoveCartItem)
-
+                                <input id="@addToCartInputId" type="hidden" /> @* value="Add" *@
                             </i>
 
                             <i id="@removeFromCartIconId" class="fas fa-minus-circle" onClick="reply_click(this.id)">
                                 <input id="@formNumberId" type="hidden" asp-for="CartVM.SupplementID" value="@item.SupplementID" onClick="reply_click(this.id)" />
-                                <input id="@removeFromCartInputId" type="hidden" asp-for="AddOrRemoveCartItem" /> @* value="Remove" *@
+                                <input id="@removeFromCartInputId" type="hidden" /> @* value="Remove" *@
                             </i>
 
                         </form>
@@ -189,29 +188,50 @@
 
 <script>
     function reply_click(clicked_id) {
+
         // replace all leading non-digits with nothing to find the form number to be submitted
-        var formNumber = clicked_id.replace(/^\D+/g, ''); 
+        var formNumber = clicked_id.replace(/^\D+/g, '');
         var supplementId = document.getElementById("formNumberId" + formNumber).value;
         console.log("SupplementID: " + supplementId);
         console.log("the current form number is " + formNumber);
 
+        var addOrRemoveToCart = "";
+
         if (clicked_id.includes("addToCartIconId")) {
             console.log("adding to cart");
             console.log("id being removed from cart: " + "addToCartInputId" + formNumber);
-
-
-            document.getElementById("addToCartInputId" + formNumber).value = "Add";
-            $("#addOrRemoveCartFormId" + formNumber).submit();
-
+            addOrRemoveToCart = "Add";
         }
         else if (clicked_id.includes("removeFromCartIconId")) {
             console.log("removing from cart");
             console.log("id being removed from cart: " + "removeFromCartInputId" + formNumber);
-
-            document.getElementById("removeFromCartInputId" + formNumber).value = "Remove";
-            $("#addOrRemoveCartFormId" + formNumber).submit();
-
+            addOrRemoveToCart = "Remove";
         }
 
+        $.ajax({
+            type: "POST",
+            url: "/Products/Supplements",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("XSRF-TOKEN",
+                    $('input:hidden[name="__RequestVerificationToken"]').val());
+            },
+            // here we assign property values!
+            data: JSON.stringify({
+                SupplementID: supplementId,
+                AddOrRemoveCartItem: addOrRemoveToCart,
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "html",
+            success: function (result) {
+                $(function () {
+                    // some code to activate validation controls?
+                    $("body").html(result);
+                    console.log("update cart success");
+                });
+            },
+            failure: function (response) {
+                alert(response);
+            }
+        });
     };
 </script>

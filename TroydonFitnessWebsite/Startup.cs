@@ -51,8 +51,10 @@ namespace TroydonFitnessWebsite
             //  _connection = builder.ConnectionString;
 
             // Configure AWS services
-          //  var options = Configuration.GetAWSOptions("AWS"); // gets AWSService key value pair from secrets.json that holds username and region
-         //   IAmazonSystemManager client = options.CreateServiceClient<IAmazonS3>();
+            //  var options = Configuration.GetAWSOptions("AWS"); // gets AWSService key value pair from secrets.json that holds username and region
+            //   IAmazonSystemManager client = options.CreateServiceClient<IAmazonS3>();
+
+            services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
 
             // config authentication options
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
