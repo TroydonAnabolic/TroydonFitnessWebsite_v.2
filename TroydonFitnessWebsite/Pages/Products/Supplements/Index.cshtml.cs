@@ -152,7 +152,7 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
                 var entry = _context.Add(emptyCartItem);
                 // assign a userID to the order, so we know which cart items to remove
                 CartVM.PurchaserID = user.Id;
-                // CartVM.SupplementID = CurrentSupplementID;
+                CartVM.SupplementID = supplementId;
                 CartVM.Quantity = 1;
                 // if the user edits the cart to have more than 1 training routine or diet routine - TODO fix if logic so it only applies to routine and diet ===================================
                 //if ( CartVM.Quantity > 1) return RedirectToPage("./Index"); 
@@ -172,9 +172,10 @@ namespace TroydonFitnessWebsite.Pages.Products.Supplements
               "cart",
               p => p.Quantity))
                 {
-                    if (addOrRemoveCartItem.Equals("Add"))
+                    // max 10 supplements items in the cart and min 0
+                    if (addOrRemoveCartItem.Equals("Add") && supplementInCartToUpdate.Quantity < 10)
                         supplementInCartToUpdate.Quantity += 1;
-                    else if (addOrRemoveCartItem.Equals("Remove"))
+                    else if (addOrRemoveCartItem.Equals("Remove") && supplementInCartToUpdate.Quantity > 0)
                         supplementInCartToUpdate.Quantity -= 1;
 
                     await _context.SaveChangesAsync();
