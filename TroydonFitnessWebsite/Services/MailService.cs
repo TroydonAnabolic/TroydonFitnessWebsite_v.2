@@ -80,7 +80,7 @@ namespace TroydonFitnessWebsite.Services
 
         public async Task SendRoutineOrderConfirmationEmail(WelcomeRequest request, string toEmail, string firstName,
             DateTime orderDate, Guid? orderNumber,
-            string productName, decimal price, int quantity, PersonalTraining.SessionType sessionType, int lengthOfRoutine, PersonalTraining.Difficulty experienceLevel)
+            string productName, decimal? price, int quantity, PersonalTraining.SessionType sessionType, int lengthOfRoutine, PersonalTraining.Difficulty experienceLevel)
         {
             string FilePath = Directory.GetCurrentDirectory() + "\\Areas\\Identity\\Pages\\Account\\EmailTemplates\\OrderConfirmation.html";
             StreamReader str = new StreamReader(FilePath);
@@ -106,6 +106,35 @@ namespace TroydonFitnessWebsite.Services
             smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
             await smtp.SendMailAsync(message);
         }
+
+        public async Task SendSupplementOrderConfirmationEmail(WelcomeRequest request, string toEmail, string firstName,
+            DateTime orderDate, Guid? orderNumber,
+            string productName, decimal? price, int quantity)
+        {
+            string FilePath = Directory.GetCurrentDirectory() + "\\Areas\\Identity\\Pages\\Account\\EmailTemplates\\SupplementOrderConfirmation.html";
+            StreamReader str = new StreamReader(FilePath);
+            string MailText = str.ReadToEnd();
+            str.Close();
+            // below line replaces all the html content inside the WelcomeEmail.cshtml, using Replace.[whatever is inside this], isReplacedWithThis
+            MailText = MailText.Replace("[firstname]", firstName).Replace("[email]", toEmail).Replace("[orderdate]", orderDate.ToString())
+                .Replace("[ordernumber]", orderNumber.ToString()).Replace("[productname]", productName).Replace("[price]", price.ToString())
+                .Replace("[quantity]", quantity.ToString()); // Finish later
+            MailMessage message = new MailMessage();
+            SmtpClient smtp = new SmtpClient();
+            message.From = new MailAddress(_mailSettings.Mail, _mailSettings.DisplayName);
+            message.To.Add(new MailAddress(toEmail));
+            message.Subject = $"TroydonFitness - Order Confirmation {firstName}";
+            message.IsBodyHtml = true;
+            message.Body = MailText;
+            smtp.Port = _mailSettings.Port;
+            smtp.Host = _mailSettings.Host;
+            smtp.EnableSsl = true;
+            smtp.UseDefaultCredentials = false;
+            smtp.Credentials = new NetworkCredential(_mailSettings.Mail, _mailSettings.Password);
+            smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+            await smtp.SendMailAsync(message);
+        }
+
 
         public async Task SendPasswordResetAsync(WelcomeRequest request, string resetPassLink, string toEmail, string firstName)
         {

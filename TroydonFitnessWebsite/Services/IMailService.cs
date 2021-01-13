@@ -19,6 +19,10 @@ namespace TroydonFitnessWebsite.Services
 
         Task SendRoutineOrderConfirmationEmail(WelcomeRequest request, string toEmail, string firstName,
             DateTime orderDate, Guid? orderNumber,
-            string productName, decimal price, int quantity, PersonalTraining.SessionType sessionType, int lengthOfRoutine, PersonalTraining.Difficulty experienceLevel);
+            string productName, decimal? price, int quantity, PersonalTraining.SessionType sessionType, int lengthOfRoutine, PersonalTraining.Difficulty experienceLevel);
+
+        Task SendSupplementOrderConfirmationEmail(WelcomeRequest request, string toEmail, string firstName,
+            DateTime orderDate, Guid? orderNumber,
+            string productName, decimal? price, int quantity);
     }
 }

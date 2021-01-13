@@ -11,7 +11,7 @@ namespace TroydonFitnessWebsite.Models.Products
     {
         public int OrderDetailID { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
         // foreign keys
         public int? TrainingRoutineID { get; set; }

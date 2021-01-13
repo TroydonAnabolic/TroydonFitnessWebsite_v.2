@@ -127,6 +127,12 @@ namespace TroydonFitnessWebsite.Pages.Products.Orders
                         OrderVM.Price = (decimal)item.Diet.PersonalTrainingSession.Product.Price;
                         OrderVM.Quantity = item.Quantity;
                     }
+                    else if (item.SupplementID != null)
+                    {
+                        OrderVM.SupplementID = item.Supplement.SupplementID;
+                        OrderVM.ProductName = item.Supplement.SupplementName;
+                        OrderVM.Quantity = item.Quantity;
+                    }
                 }
             }
             #region MyRegion
@@ -235,6 +241,34 @@ namespace TroydonFitnessWebsite.Pages.Products.Orders
                         await _mailService.SendRoutineOrderConfirmationEmail(request, user.Email, user.FirstName,
                             OrderDetailVM.OrderDate, OrderDetailVM.OrderNumber,
                             OrderDetailVM.ProductName, OrderDetailVM.Price, OrderDetailVM.Quantity, OrderDetailVM.PTSessionType, OrderDetailVM.LengthOfRoutine, OrderDetailVM.ExperienceLevel);
+                    }
+                    else if (item.SupplementID != null)
+                    {
+                        var emptyOrderDetail = new OrderDetail();
+                        var entry2 = _context.Add(emptyOrderDetail);
+                        numberOfItemsInOrder++;
+                        OrderDetailVM.CurrentOrderItemNumber = numberOfItemsInOrder;
+
+                        // copy the order that was just created above, and assign to the order details table
+                        OrderDetailVM.OrderID = orderCreated.OrderID;
+                        OrderDetailVM.OrderDate = orderCreated.OrderDate;
+                        OrderDetailVM.PurchaserID = orderCreated.PurchaserID;
+                        OrderDetailVM.OrderNumber = Guid.NewGuid();
+
+                        // now copy cart items
+                        // copy the order created to the order details
+                        OrderDetailVM.ProductID = CartItemsToOrder.FirstOrDefault().Supplement.ProductID;
+                        OrderDetailVM.SupplementID = CartItemsToOrder.FirstOrDefault().SupplementID;
+                        OrderDetailVM.ProductName = CartItemsToOrder.FirstOrDefault().Supplement.SupplementName;
+                        OrderDetailVM.Quantity = CartItemsToOrder.FirstOrDefault().Quantity; // explicitly cast to decimal from type nullable decimal?
+                        entry2.CurrentValues.SetValues(OrderDetailVM);
+                        await _context.SaveChangesAsync();
+
+                        // email the order details 
+                        await _mailService.SendSupplementOrderConfirmationEmail(request, user.Email, user.FirstName,
+                            OrderDetailVM.OrderDate, OrderDetailVM.OrderNumber,
+                            OrderDetailVM.ProductName, OrderDetailVM.Price, OrderDetailVM.Quantity);
+
                     }
                 }
                 // now delete everything in the cart

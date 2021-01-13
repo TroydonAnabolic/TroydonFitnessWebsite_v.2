@@ -11,8 +11,9 @@
     background: none;
     align-items: center;
     background-color: aliceblue;
-    margin: 4rem 0;
-    padding: 2rem;
+    margin: 0;
+    line-height: 0;
+    padding: 1rem;
 }
 
     .navbar-Product a {
@@ -141,6 +142,20 @@ span.dot.active {
     flex-direction: row;
     background-color: aliceblue;
 }
+
+.checkout {
+    float: right;
+    color:  #fff;
+    background-color: gray;
+    padding: 1.5rem;
+    border: 2px solid #000;
+    border-radius: 95%;
+}
+
+    .checkout a, .checkout a:hover {
+        text-decoration: none;
+        color: #fff;
+    }
 
 /* Payment styling */
 .review-cart {

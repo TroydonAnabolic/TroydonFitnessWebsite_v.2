@@ -24,6 +24,7 @@
         </p>
     </div>
 </form>
+
 @* TODO: Add option to add to cart by clicking on an a plus icon right next to the item instead of using a select list, and do not navigate to the cart *@
 <table class="table">
     <thead>
@@ -67,7 +68,7 @@
             @if (UserManager.GetUserAsync(User).Result.IsAdmin)
             {
                 <th></th>
-}
+            }
             <th></th>
 
         </tr>
@@ -185,6 +186,13 @@
    class="btn btn-primary @nextDisabled">
     Next
 </a>
+
+<div class="checkout">
+    <a asp-page="/Products/Orders/ManageCart/ViewCart">
+        Checkout
+        <i class="fas fa-arrow-right"></i>
+    </a>
+</div>
 
 <script>
     function reply_click(clicked_id) {

@@ -31,7 +31,7 @@ namespace TroydonFitnessWebsite.Models.Products.ViewModels
         //  details
         public string ProductName { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
