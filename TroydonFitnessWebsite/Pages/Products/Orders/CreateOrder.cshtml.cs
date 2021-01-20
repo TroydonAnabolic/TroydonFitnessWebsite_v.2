@@ -289,7 +289,8 @@ namespace TroydonFitnessWebsite.Pages.Products.Orders
 
                         // add order details to temp vars
                         productNames.Add(OrderDetailVM.ProductName);
-                        prices.Add(OrderDetailVM.Price);
+                        if (OrderDetailVM.ProductName.Contains("Herbal")) prices.Add(null);
+                        else prices.Add(OrderDetailVM.Price);
                         quantity.Add(OrderDetailVM.Quantity);
                         sessionTypes.Add(null);
                         lengthsOfRoutine.Add(null);;
