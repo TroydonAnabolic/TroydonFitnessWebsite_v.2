@@ -17,12 +17,8 @@ namespace TroydonFitnessWebsite.Services
 
         Task UpdateEmailAsync(WelcomeRequest request, string confirmAccountLink, string toEmail, string firstName);
 
-        Task SendRoutineOrderConfirmationEmail(WelcomeRequest request, string toEmail, string firstName,
+        Task SendRoutineOrderConfirmationEmail(WelcomeRequest request, int numberOfItemsInOrder, string toEmail, string firstName,
             DateTime orderDate, Guid? orderNumber,
-            string productName, decimal? price, int quantity, PersonalTraining.SessionType sessionType, int lengthOfRoutine, PersonalTraining.Difficulty experienceLevel);
-
-        Task SendSupplementOrderConfirmationEmail(WelcomeRequest request, string toEmail, string firstName,
-            DateTime orderDate, Guid? orderNumber,
-            string productName, decimal? price, int quantity);
+            List<string> productNames, List<decimal?> prices, List<int> quantities, List<PersonalTraining.SessionType?> sessionTypes, List<int?> lengthsOfRoutine, List<PersonalTraining.Difficulty?> experienceLevels);
     }
 }

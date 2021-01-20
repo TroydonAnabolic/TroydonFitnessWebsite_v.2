@@ -205,7 +205,16 @@ namespace TroydonFitnessWebsite.Pages.Products.Orders
             // now add the ordered items into the order details table
             if (CartItemsToOrder != null)
             {
+                List<int?> supplementId = new List<int?>();
+                List<string> productNames = new List<string>();
+                List<decimal?> prices = new List<decimal?>();
+                List<int> quantity = new List<int>();
+                List<PersonalTraining.SessionType?> sessionTypes = new List<PersonalTraining.SessionType?>();
+                List<int?> lengthsOfRoutine = new List<int?>();
+                List<PersonalTraining.Difficulty?> experienceLevels = new List<PersonalTraining.Difficulty?>();
+
                 numberOfItemsInOrder = 0;
+                int currentCartItemIndex = 0;
 
                 // now add all the items in the cart
                 foreach (var item in CartItemsToOrder)
@@ -213,6 +222,7 @@ namespace TroydonFitnessWebsite.Pages.Products.Orders
                     // if item being copied is of training routine
                     if (item.TrainingRoutineID != null)
                     {
+                        // add order to db
                         var emptyOrderDetail = new OrderDetail();
                         var entry2 = _context.Add(emptyOrderDetail);
                         numberOfItemsInOrder++;
@@ -226,21 +236,33 @@ namespace TroydonFitnessWebsite.Pages.Products.Orders
 
                         // now copy cart items
                         // copy the order created to the order details
-                        OrderDetailVM.ProductID = CartItemsToOrder.FirstOrDefault().TrainingRoutine.PersonalTrainingSession.ProductID;
-                        OrderDetailVM.TrainingRoutineID = CartItemsToOrder.FirstOrDefault().TrainingRoutineID;
-                        OrderDetailVM.ProductName = CartItemsToOrder.FirstOrDefault().TrainingRoutine.PersonalTrainingSession.Product.Title;
-                        OrderDetailVM.Price = (decimal)CartItemsToOrder.FirstOrDefault().TrainingRoutine.PersonalTrainingSession.Product.Price;
-                        OrderDetailVM.Quantity = CartItemsToOrder.FirstOrDefault().Quantity; // explicitly cast to decimal from type nullable decimal?
-                        OrderDetailVM.PTSessionType = CartItemsToOrder.FirstOrDefault().TrainingRoutine.PersonalTrainingSession.PTSessionType;
-                        OrderDetailVM.LengthOfRoutine = CartItemsToOrder.FirstOrDefault().TrainingRoutine.PersonalTrainingSession.LengthOfRoutine;
-                        OrderDetailVM.ExperienceLevel = CartItemsToOrder.FirstOrDefault().TrainingRoutine.PersonalTrainingSession.ExperienceLevel;
+                        OrderDetailVM.ProductID = CartItemsToOrder.ElementAt(currentCartItemIndex).TrainingRoutine.PersonalTrainingSession.ProductID;
+                        OrderDetailVM.TrainingRoutineID = CartItemsToOrder.ElementAt(currentCartItemIndex).TrainingRoutineID;
+                        OrderDetailVM.ProductName = CartItemsToOrder.ElementAt(currentCartItemIndex).TrainingRoutine.PersonalTrainingSession.Product.Title;
+                        OrderDetailVM.Price = (decimal)CartItemsToOrder.ElementAt(currentCartItemIndex).TrainingRoutine.PersonalTrainingSession.Product.Price;
+                        OrderDetailVM.Quantity = CartItemsToOrder.ElementAt(currentCartItemIndex).Quantity; // explicitly cast to decimal from type nullable decimal?
+                        OrderDetailVM.PTSessionType = CartItemsToOrder.ElementAt(currentCartItemIndex).TrainingRoutine.PersonalTrainingSession.PTSessionType;
+                        OrderDetailVM.LengthOfRoutine = CartItemsToOrder.ElementAt(currentCartItemIndex).TrainingRoutine.PersonalTrainingSession.LengthOfRoutine;
+                        OrderDetailVM.ExperienceLevel = CartItemsToOrder.ElementAt(currentCartItemIndex).TrainingRoutine.PersonalTrainingSession.ExperienceLevel;
+                        currentCartItemIndex++;
                         entry2.CurrentValues.SetValues(OrderDetailVM);
                         await _context.SaveChangesAsync();
 
-                        // email the order details 
-                        await _mailService.SendRoutineOrderConfirmationEmail(request, user.Email, user.FirstName,
-                            OrderDetailVM.OrderDate, OrderDetailVM.OrderNumber,
-                            OrderDetailVM.ProductName, OrderDetailVM.Price, OrderDetailVM.Quantity, OrderDetailVM.PTSessionType, OrderDetailVM.LengthOfRoutine, OrderDetailVM.ExperienceLevel);
+                        // add order details to temp vars
+                        productNames.Add(OrderDetailVM.ProductName);
+                        prices.Add(OrderDetailVM.Price);
+                        quantity.Add(OrderDetailVM.Quantity);
+                        sessionTypes.Add(OrderDetailVM.PTSessionType);
+                        lengthsOfRoutine.Add(OrderDetailVM.LengthOfRoutine);
+                        experienceLevels.Add(OrderDetailVM.ExperienceLevel);
+
+                        // add it all to an order detail list, so we can use this to display onto the order list table
+                        // consider using a list parameter for determining how many rows to use in the order confirmation email, based on number of items in the order (numberOfItemsInOrder)
+                        // use that to determine the size of a list created in javascript to create a table, create the entire table in javascript to dynamically create the size
+                        // based on the numberOfItemsInOrder and use list parameters instead, by changing MailService to accept List paramets e.g
+                        //              await _mailService.SendRoutineOrderConfirmationEmail(List<int>orderNumber,  
+                        // List<string> productName and allow javascript to populate this value, when e.g sessiontype is not there, just keep that cell blank
+                        // when iterating over the length of routine and any other stuff that is not common, ensure there is a method run that checks, if its null do nothing
                     }
                     else if (item.SupplementID != null)
                     {
@@ -257,20 +279,28 @@ namespace TroydonFitnessWebsite.Pages.Products.Orders
 
                         // now copy cart items
                         // copy the order created to the order details
-                        OrderDetailVM.ProductID = CartItemsToOrder.FirstOrDefault().Supplement.ProductID;
-                        OrderDetailVM.SupplementID = CartItemsToOrder.FirstOrDefault().SupplementID;
-                        OrderDetailVM.ProductName = CartItemsToOrder.FirstOrDefault().Supplement.SupplementName;
-                        OrderDetailVM.Quantity = CartItemsToOrder.FirstOrDefault().Quantity; // explicitly cast to decimal from type nullable decimal?
+                        OrderDetailVM.ProductID = CartItemsToOrder.ElementAt(currentCartItemIndex).Supplement.ProductID;
+                        OrderDetailVM.SupplementID = CartItemsToOrder.ElementAt(currentCartItemIndex).SupplementID;
+                        OrderDetailVM.ProductName = CartItemsToOrder.ElementAt(currentCartItemIndex).Supplement.SupplementName; // make the prod name supp name so it can be emailed
+                        OrderDetailVM.Quantity = CartItemsToOrder.ElementAt(currentCartItemIndex).Quantity; // explicitly cast to decimal from type nullable decimal?
+                        currentCartItemIndex++;
                         entry2.CurrentValues.SetValues(OrderDetailVM);
                         await _context.SaveChangesAsync();
 
-                        // email the order details 
-                        await _mailService.SendSupplementOrderConfirmationEmail(request, user.Email, user.FirstName,
-                            OrderDetailVM.OrderDate, OrderDetailVM.OrderNumber,
-                            OrderDetailVM.ProductName, OrderDetailVM.Price, OrderDetailVM.Quantity);
-
+                        // add order details to temp vars
+                        productNames.Add(OrderDetailVM.ProductName);
+                        prices.Add(OrderDetailVM.Price);
+                        quantity.Add(OrderDetailVM.Quantity);
+                        sessionTypes.Add(null);
+                        lengthsOfRoutine.Add(null);;
+                        experienceLevels.Add(null);
                     }
                 }
+
+                // email the order details 
+                await _mailService.SendRoutineOrderConfirmationEmail(request, numberOfItemsInOrder, user.Email, user.FirstName, OrderDetailVM.OrderDate, OrderDetailVM.OrderNumber,
+                    productNames, prices, quantity, sessionTypes, lengthsOfRoutine, experienceLevels);
+
                 // now delete everything in the cart
                 _context.CartItems.RemoveRange(CartItemsToOrder);
                 await _context.SaveChangesAsync();

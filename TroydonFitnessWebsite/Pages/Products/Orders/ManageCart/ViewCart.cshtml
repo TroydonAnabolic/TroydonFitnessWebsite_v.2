@@ -112,6 +112,7 @@
         </tr>
     </thead>
     <tbody>
+        @{int currentCartItem = 0; }
         @foreach (var item in Model.CartItems)
         {
             <tr>
@@ -148,31 +149,31 @@
                 }
 
                 <td>
-                    @* Display data access paths depending on the type of oder, e.g if training routine is not null, then display it's data access route tree *@
-                    @if (Model.CartItems[0].TrainingRoutine != null)
+                    @* Display data for each column if any of the training routines, or diets or supplements are in the cart aka not null *@
+                    @if (Model.CartItems.Any(i => i.TrainingRoutine != null))
                     {
                         @Html.DisplayFor(modelItem => item.TrainingRoutine.PersonalTrainingSession.Product.Title) // TODO: change this to TrainingRoutine name maybe if logic shd be like supp
                     }
-                    @if (Model.CartItems[0].Diet != null)
+                    @if (Model.CartItems.Any(i => i.Diet != null))
                     {
                         @Html.DisplayFor(modelItem => item.Diet.PersonalTrainingSession.Product.Title)
                     }
-                    @if (Model.CartItems[0].Supplement != null)
+                    @if (Model.CartItems.Any(i => i.Supplement != null))
                     {
                         @Html.DisplayFor(modelItem => item.Supplement.SupplementName)
                     }
                 </td>
                 <td>
                     @* Display data access paths depending on the type of oder, e.g if training routine is not null, then display it's data access route tree *@
-                    @if (Model.CartItems[0].TrainingRoutine != null)
+                    @if (Model.CartItems[currentCartItem].TrainingRoutine != null) // (sessionTypes.Any(i => i != null))
                     {
                         <img style="width:7rem;height:7rem; object-fit:cover;" src="data:image/*;base64,@(Convert.ToBase64String(item.TrainingRoutine.PersonalTrainingSession.PtProductPicture))">
                     }
-                    else if (Model.CartItems[0].Diet != null)
+                    else if (Model.CartItems[currentCartItem].Diet != null)
                     {
                         <img style="width:7rem;height:7rem; object-fit:cover;" src="data:image/*;base64,@(Convert.ToBase64String(item.Diet.PersonalTrainingSession.PtProductPicture))">
                     }
-                    else if (Model.CartItems[0].Supplement != null && item.Supplement.SupplementPicture != null)
+                    else if (Model.CartItems[currentCartItem].Supplement != null && item.Supplement.SupplementPicture != null)
                     {
                         <img style="width:7rem;height:7rem; object-fit:cover;" src="data:image/*;base64,@(Convert.ToBase64String(item.Supplement.SupplementPicture))">
 
@@ -190,7 +191,8 @@
                     <a asp-area="" asp-page="./DeleteCartItem" asp-route-id="@item.CartID">Delete</a>
                 </td>
             </tr>
-        }
+                        currentCartItem++;
+                    }
     </tbody>
 </table>
 

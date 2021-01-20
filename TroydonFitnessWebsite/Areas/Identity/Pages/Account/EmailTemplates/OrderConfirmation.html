@@ -31,17 +31,12 @@
             text-align: left;
         }
 
-        #t01 tr:nth-child(even) {
+        table tr:nth-child(even) {
             background-color: #eee;
         }
 
-        #t01 tr:nth-child(odd) {
+        table tr:nth-child(odd) {
             background-color: #fff;
-        }
-
-        #t01 th {
-            background-color: #17a2b8;
-            color: white;
         }
 
         h2 {
@@ -62,40 +57,59 @@
 
         <h2>Order Summary</h2>
 
-        <table id="t01">
+        <table style="width:100%">
+            <caption>Order Confirmation</caption>
             <tr>
-                <th>Firstname</th>
+                <td>Firstname</td>
                 <td>[firstname]</td>
             </tr>
             <tr>
-                <th>Email</th>
+                <td>Email</td>
                 <td>[email]</td>
             </tr>
             <tr>
-                <th>Order Date</th>
+                <td>Order Date</td>
                 <td>[orderdate]</td>
             </tr>
             <tr>
-                <th>Order Number</th>
+                <td>Order Number</td>
                 <td>[ordernumber]</td>
             </tr>
-            <tr>
-                <th>Product Name</th>
-                <td>[productname]</td>
-            </tr>
-            <tr>
-                <th>Price</th>
-                <td>[price]</td>
-            </tr>
-            <tr>
-                <th>Quantity</th>
-                <td>[quantity]</td>
-            </tr>
         </table>
+
+        <br />
+
+        [orderdetails]
+
+        <br />
+
+        [trainingorderdetails]
+
+
     </div>
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"></script>
+    <script>
+        // Make script to hide element if it has no value, and also hide it's immediate parent using  $("span").parent()
+        // TODO- remove custom emailservice method for supps, and just use these to hide when default values are present
+        //if ($("#product-name-sendto").val() == "[productname]") {
+        //    $("#product-name-sendto").parent().hide();
+        //}
+        //if ($("#supplement-name-sendto").val() == "[supplementname]") {
+        //    $("#session-type-sendto").parent().hide();
+
+        // actually hide the element, grab the list of quantities or numberofitems ordered, use it as upper limit in the loop, break the wordlist into words, and use each word to append into the table rows
+        window.addEventListener('load', checkJSLoaded)
+
+        function checkJSLoaded() {
+
+            // when document is loaded, apply these
+            document.body.style.backgroundColor = "red";
+        }
+
+
+    </script>
 </body>
 </html>
